@@ -32,11 +32,14 @@ def callback(topic, msg, retained):
         mode = kleiderschrank
         print("Kleiderschrank switched to on")
     elif msg is "film" or msg is "side_2":
-        mode = film
+        mode = remote
         print("Film switched to on")
     elif msg is "platsch":
         mode = platsch 
         print("Platsch switched to on")
+    elif msg is "remote":
+        mode = remote
+        print("Remote Control activated")
     elif msg is "lighter":
         if BRIGHTNESS < 1.0:
             BRIGHTNESS+=0.1
@@ -123,6 +126,43 @@ async def off(strip):
         sw()
 
     mode = None
+
+
+
+
+
+async def remote(strip):
+    #Logic for TCP reader
+    import socket
+    global current, mode
+    counter = 0
+    s = socket.socket()
+
+    try:
+            s.connect(("192.168.0.161", 10000))
+    except:
+        print("Could not connect to server!")
+        mode = None
+        #send led strip back to idle
+        return 0
+
+    while True:
+
+        data = s.recv(1450)
+        if data.decode() == "end":
+            print("End of Remote mode")
+            break
+        
+        print(f"Packet number {counter}: \n")
+        print(data)
+        counter+=1
+
+            
+            
+
+
+
+
 
 async def one_color(strip, val = (31,36,181)):
     global current
